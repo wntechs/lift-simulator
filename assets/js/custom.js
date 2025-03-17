@@ -3,9 +3,12 @@ const ELEVATOR_STATUS_MOVING = "ELEVATOR_MOVING";
 const ELEVATOR_STATUS_ARRIVED = "ELEVATOR_ARRIVED";
 const ELEVATOR_DIRECTION_UP = "ELEVATOR_DIRECTION_UP";
 const ELEVATOR_DIRECTION_DOWN = "ELEVATOR_DIRECTION_DOWN";
+const BTN_STATUS_BUSY = 'BTN_STATUS_BUSY';
+const BTN_STATUS_FREE = 'BTN_STATUS_FREE';
+const BTN_STATUS_ARRIVED = 'BTN_STATUS_ARRIVED';
 const FLOOR_HEIGHT = 70; // height of each cell in pixels
 const ELEVATOR_HEIGHT = 25; // height of elevator/car in pixels
-const UNIT_TRAVEL_SECONDS = 10; // travel time from one floor to next floor in seconds
+const UNIT_TRAVEL_SECONDS = 5; // travel time from one floor to next floor in seconds
 const MAX_FLOOR = 9;
 function App(){
     this.intervalHandler = null;
@@ -28,10 +31,7 @@ function App(){
         $(document).on( 'click','.action', (event, ele)=> {
             const btn = $(event.currentTarget);
             const caller = btn.data('floor');
-            btn.removeClass('green');
-            btn.addClass('red');
-            btn.text("Waiting");
-            btn.prop('disabled', true);
+            this.updateButtonStatus(btn, BTN_STATUS_BUSY);
             this.enqueueRequest(caller, btn);
 
         });
@@ -48,6 +48,32 @@ function App(){
             }
         }, 500);
     }
+
+    this.updateButtonStatus = (btn, elevatorStatus) => {
+        switch (elevatorStatus) {
+            case BTN_STATUS_BUSY:
+                btn.removeClass('green');
+                btn.addClass('red');
+                btn.text("Waiting");
+                btn.prop('disabled', true);
+                break;
+            case BTN_STATUS_ARRIVED:
+                btn.removeClass('red');
+                btn.addClass('arrived');
+                btn.text("Arrived");
+                break;
+            case BTN_STATUS_FREE:
+                btn.removeClass('arrived');
+                btn.addClass('green');
+                btn.text("Call");
+                btn.prop('disabled', false);
+                break;
+            default:
+                console.warn("Unknown button status")
+
+        }
+
+    }
     /**
      * Find the closest available/idle car. Returns -1 if none are available
      * @param callerFloor
@@ -55,7 +81,7 @@ function App(){
      */
     this.findNearestElevator = (callerFloor) => {
         let elevatorDistance = null;
-        let idx = -1;
+        let elevatorIndex = -1; // negative index means no available cars found
         for(let i = 0; i < this.elevators.length; i++){
             if(this.elevators[i].status !== ELEVATOR_STATUS_IDLE) continue;
 
@@ -64,17 +90,17 @@ function App(){
             if(elevatorDistance === null){
                 // We assume the first free car to be the target
                 elevatorDistance = tempDistance; // assign first free car
-                idx = i;
+                elevatorIndex = i;
             }else if(tempDistance <= elevatorDistance){
                 //new temporary distance is less so we replace the value here and continue comparing all available cars
                 elevatorDistance = tempDistance;
-                idx = i;
+                elevatorIndex = i;
             }
            // console.log('tempDistance | elevatorDistance', tempDistance, elevatorDistance)
             //debugger;
         }
 
-        return idx;
+        return elevatorIndex;
     }
 
     this.enqueueRequest = (caller, btn)=> {
@@ -98,7 +124,6 @@ function App(){
         if(!this.hasRequests()) return;
         const { destination} = this.peekRequest();
 
-        //console.log('caller', destination);
         const idx = this.findNearestElevator(destination)
         if(idx === -1) {
             console.warn("Elevator not free")
@@ -133,19 +158,14 @@ function App(){
         this.elevators[idx].move(caller);
         $(this.elevatorElements[idx]).animate({bottom: bottom}, speed, ()=> {
             this.elevators[idx].stop(caller);
-            btn.removeClass('red');
-            btn.addClass('arrived');
-            btn.text("Arrived");
+            this.updateButtonStatus(btn, BTN_STATUS_ARRIVED);
             this.toneElement.play();
             if(col){
                 col.find('.timer').hide();
                 clearInterval(interval);
             }
             setTimeout(()=> {
-                btn.removeClass('arrived');
-                btn.addClass('green');
-                btn.text("Call");
-                btn.prop('disabled', false);
+                this.updateButtonStatus(btn, BTN_STATUS_FREE);
 
                 $(this.elevatorElements[idx]).removeClass('arrived');
                 $(this.elevatorElements[idx]).addClass('idle');
