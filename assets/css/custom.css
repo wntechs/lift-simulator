@@ -1,0 +1,90 @@
+body{
+    background-color: #EEEEEE;
+}
+
+.hallway {
+    background-color: #ffffff;
+    display: grid;
+    grid-template-columns:
+      repeat(7, 1fr);
+}
+
+.lift {
+    border-color: lightgrey;
+    border-top: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    text-align: center;
+    height: 70px;
+    position: relative;
+}
+.lift:first-child {
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    text-align: right;
+    font-weight: bold;
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    justify-content: end;
+}
+
+.lift:last-child {
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    padding: 10px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+.lift > .elevator svg path {
+    fill: green;
+}
+.lift > .elevator{
+    width: 25px;
+    position: absolute;
+    bottom: 10px;
+    /*transition: all ease 1.5s;*/
+}
+.lift > .elevator.idle svg path{
+    fill: #000000;
+}
+.lift > .elevator.arrived svg path{
+    fill: green;
+}
+.lift > .elevator.busy svg path{
+    fill: red;
+}
+
+.timer{
+    position: absolute;
+    font-size: 12px;
+    display: inherit;
+    color: darkslategrey;
+    text-align: center;
+    right: 22px;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 5px 30px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.button.green {
+    background-color: #04AA6D; /* Green */
+}
+.button.red {
+    background-color: #e8585f; /* Red */
+}
+
+.button.arrived {
+    border: 1px solid #04AA6D;
+    color: #04AA6D;
+    background-color: #ffffff;
+}
