@@ -3,7 +3,7 @@ body{
 }
 
 .hallway {
-    background-color: #ffffff;
+
     display: grid;
     grid-template-columns:
       repeat(7, 1fr);
@@ -16,6 +16,7 @@ body{
     text-align: center;
     height: 70px;
     position: relative;
+    background-color: #ffffff;
 }
 .lift:first-child {
     border-top: none;
@@ -27,6 +28,7 @@ body{
     padding: 10px;
     align-items: center;
     justify-content: end;
+    background-color: #EEEEEE;
 }
 
 .lift:last-child {
@@ -38,6 +40,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: start;
+    background-color: #EEEEEE;
 }
 .lift > .elevator svg path {
     fill: green;
